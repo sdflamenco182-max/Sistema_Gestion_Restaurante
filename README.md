@@ -71,14 +71,6 @@ Todo el código está en `RestaurantePedidos/src/com/restaurante`, dividido en c
 
 La idea es que las ventanas nunca hablan directo con la base de datos. Le piden las cosas a un servicio, y el servicio usa la persistencia.
 
-## Pruebas
-
-Hay pruebas automáticas para las validaciones, el manejo de contraseñas y las reglas del pedido. Se corren con:
-
-```
-ant probar
-```
-
 ## Base de datos
 
 Se llama `restaurante_db` y tiene estas colecciones: `usuarios`, `clientes`, `mesas`, `productos`, `pedidos` y `contadores`. Los productos de cada pedido se guardan dentro del mismo pedido, junto con el precio y la cantidad.
