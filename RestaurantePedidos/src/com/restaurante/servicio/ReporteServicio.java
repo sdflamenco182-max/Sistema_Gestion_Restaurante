@@ -11,7 +11,29 @@ import java.util.List;
 
 public class ReporteServicio {
 
-    public record ResumenEstado(EstadoPedido estado, int cantidad, BigDecimal importe) {
+    public static class ResumenEstado {
+
+        private final EstadoPedido estado;
+        private final int cantidad;
+        private final BigDecimal importe;
+
+        public ResumenEstado(EstadoPedido estado, int cantidad, BigDecimal importe) {
+            this.estado = estado;
+            this.cantidad = cantidad;
+            this.importe = importe;
+        }
+
+        public EstadoPedido getEstado() {
+            return estado;
+        }
+
+        public int getCantidad() {
+            return cantidad;
+        }
+
+        public BigDecimal getImporte() {
+            return importe;
+        }
     }
 
     private final PedidoRepositorio pedidos = new PedidoRepositorio();

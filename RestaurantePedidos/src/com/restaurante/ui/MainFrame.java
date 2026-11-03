@@ -28,17 +28,22 @@ public class MainFrame extends JFrame {
 
         crearPestanas();
         setJMenuBar(crearMenu());
+        armarDistribucion();
+        conectarEventos();
+        configurarTamanoYPosicion();
+        refrescar(pestanas.getSelectedComponent());
+    }
 
+    private void armarDistribucion() {
         setLayout(new BorderLayout());
         add(pestanas, BorderLayout.CENTER);
         add(crearBarraEstado(), BorderLayout.SOUTH);
+    }
 
-        conectarEventos();
-
+    private void configurarTamanoYPosicion() {
         setMinimumSize(new Dimension(980, 640));
         setSize(1100, 700);
         setLocationRelativeTo(null);
-        refrescar(pestanas.getSelectedComponent());
     }
 
     private void crearPestanas() {
@@ -79,8 +84,11 @@ public class MainFrame extends JFrame {
 
     private void refrescar(Component panel) {
         if (panel instanceof Refrescable) {
-            Refrescable refrescable = (Refrescable) panel;
-            UiUtil.ejecutar(this, () -> refrescable.refrescar());
+            try {
+                ((Refrescable) panel).refrescar();
+            } catch (RuntimeException ex) {
+                UiUtil.mostrarError(this, ex);
+            }
         }
     }
 

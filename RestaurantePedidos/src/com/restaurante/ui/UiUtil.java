@@ -42,14 +42,12 @@ final class UiUtil {
         return respuesta == JOptionPane.YES_OPTION;
     }
 
-    static void ejecutar(Component padre, Runnable accion) {
-        try {
-            accion.run();
-        } catch (ValidacionException e) {
+    static void mostrarError(Component padre, RuntimeException e) {
+        if (e instanceof ValidacionException) {
             advertencia(padre, e.getMessage());
-        } catch (PersistenciaException e) {
+        } else if (e instanceof PersistenciaException) {
             error(padre, e.getMessage());
-        } catch (RuntimeException e) {
+        } else {
             error(padre, "Ocurrió un error inesperado: " + e.getMessage());
         }
     }

@@ -100,8 +100,8 @@ class PanelConsultas extends JPanel implements Refrescable {
 
     private void conectarEventos() {
         cmbTipo.addActionListener(e -> cambiarTipoDeConsulta());
-        btnConsultar.addActionListener(e -> UiUtil.ejecutar(this, () -> consultar()));
-        btnDetalle.addActionListener(e -> UiUtil.ejecutar(this, () -> verDetalle()));
+        btnConsultar.addActionListener(e -> consultar());
+        btnDetalle.addActionListener(e -> verDetalle());
     }
 
     private void cambiarTipoDeConsulta() {
@@ -124,31 +124,39 @@ class PanelConsultas extends JPanel implements Refrescable {
     }
 
     private void consultar() {
+        try {
+            consultarSegunTipo();
+        } catch (RuntimeException ex) {
+            UiUtil.mostrarError(this, ex);
+        }
+    }
+
+    private void consultarSegunTipo() {
         String tipo = (String) cmbTipo.getSelectedItem();
         if (tipo.equals(POR_CODIGO)) {
-            consultarPorCodigo();
+            consultarPedidoPorCodigo();
         } else if (tipo.equals(POR_MESA)) {
-            consultarPorMesa();
+            consultarPedidosPorMesa();
         } else if (tipo.equals(POR_ESTADO)) {
-            mostrarPedidos(pedidos.consultarPorEstado((EstadoPedido) cmbEstado.getSelectedItem()));
+            consultarPedidosPorEstado();
         } else if (tipo.equals(POR_FECHA)) {
-            mostrarPedidos(pedidos.consultarPorFecha(txtDesde.getText(), txtHasta.getText()));
+            consultarPedidosPorFecha();
         } else if (tipo.equals(PRODUCTOS)) {
-            mostrarProductos(productos.listar());
+            mostrarListadoProductos();
         } else if (tipo.equals(RESUMEN)) {
-            mostrarResumen(reportes.resumenPorEstado());
+            mostrarResumenDePedidos();
         } else {
             throw new IllegalStateException("Tipo de consulta desconocido: " + tipo);
         }
     }
 
-    private void consultarPorCodigo() {
+    private void consultarPedidoPorCodigo() {
         List<Pedido> encontrados = new ArrayList<>();
         encontrados.add(pedidos.obtener(txtCodigo.getText()));
         mostrarPedidos(encontrados);
     }
 
-    private void consultarPorMesa() {
+    private void consultarPedidosPorMesa() {
         Mesa mesa = (Mesa) cmbMesa.getSelectedItem();
         if (mesa == null) {
             throw new ValidacionException("No hay mesas registradas.");
@@ -156,15 +164,25 @@ class PanelConsultas extends JPanel implements Refrescable {
         mostrarPedidos(pedidos.consultarPorMesa(mesa.getCodigo()));
     }
 
+    private void consultarPedidosPorEstado() {
+        mostrarPedidos(pedidos.consultarPorEstado((EstadoPedido) cmbEstado.getSelectedItem()));
+    }
+
+    private void consultarPedidosPorFecha() {
+        mostrarPedidos(pedidos.consultarPorFecha(txtDesde.getText(), txtHasta.getText()));
+    }
+
+    private void mostrarListadoProductos() {
+        mostrarProductos(productos.listar());
+    }
+
+    private void mostrarResumenDePedidos() {
+        mostrarResumen(reportes.resumenPorEstado());
+    }
+
     private void mostrarPedidos(List<Pedido> lista) {
         pedidosMostrados = new ArrayList<>(lista);
-        DefaultTableModel modelo = UiUtil.modelo("Código", "Fecha", "Cliente", "Mesa", "Estado", "Productos", "Total");
-        for (Pedido p : lista) {
-            modelo.addRow(new Object[]{p.getCodigo(), p.getFecha().format(CatalogoNombres.FORMATO_FECHA),
-                    nombres.cliente(p.getCodigoCliente()), nombres.mesa(p.getCodigoMesa()), p.getEstado(),
-                    p.getDetalles().size(), Dinero.formato(p.calcularTotal())});
-        }
-        tabla.setModel(modelo);
+        tabla.setModel(crearModeloDePedidos(lista));
         btnDetalle.setEnabled(!lista.isEmpty());
         if (lista.isEmpty()) {
             lblResultado.setText("La consulta no produjo resultados.");
@@ -173,15 +191,19 @@ class PanelConsultas extends JPanel implements Refrescable {
         }
     }
 
+    private DefaultTableModel crearModeloDePedidos(List<Pedido> lista) {
+        DefaultTableModel modelo = UiUtil.modelo("Código", "Fecha", "Cliente", "Mesa", "Estado", "Productos", "Total");
+        for (Pedido p : lista) {
+            modelo.addRow(new Object[]{p.getCodigo(), p.getFecha().format(CatalogoNombres.FORMATO_FECHA),
+                    nombres.cliente(p.getCodigoCliente()), nombres.mesa(p.getCodigoMesa()), p.getEstado(),
+                    p.getDetalles().size(), Dinero.formato(p.calcularTotal())});
+        }
+        return modelo;
+    }
+
     private void mostrarProductos(List<Producto> lista) {
         limpiarResultados();
-        DefaultTableModel modelo = UiUtil.modelo("Código", "Nombre", "Categoría", "Precio", "Disponible");
-        for (Producto p : lista) {
-            String disponible = p.isDisponible() ? "Sí" : "No";
-            modelo.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getCategoria(),
-                    Dinero.formato(p.getPrecio()), disponible});
-        }
-        tabla.setModel(modelo);
+        tabla.setModel(crearModeloDeProductos(lista));
         if (lista.isEmpty()) {
             lblResultado.setText("No hay productos registrados.");
         } else {
@@ -189,20 +211,20 @@ class PanelConsultas extends JPanel implements Refrescable {
         }
     }
 
+    private DefaultTableModel crearModeloDeProductos(List<Producto> lista) {
+        DefaultTableModel modelo = UiUtil.modelo("Código", "Nombre", "Categoría", "Precio", "Disponible");
+        for (Producto p : lista) {
+            String disponible = p.isDisponible() ? "Sí" : "No";
+            modelo.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getCategoria(),
+                    Dinero.formato(p.getPrecio()), disponible});
+        }
+        return modelo;
+    }
+
     private void mostrarResumen(List<ResumenEstado> resumen) {
         limpiarResultados();
-        DefaultTableModel modelo = UiUtil.modelo("Estado", "Cantidad de pedidos", "Importe total");
-        int cantidadTotal = 0;
-        BigDecimal importeTotal = Dinero.CERO;
-        for (ResumenEstado r : resumen) {
-            modelo.addRow(new Object[]{r.estado(), r.cantidad(), Dinero.formato(r.importe())});
-            cantidadTotal += r.cantidad();
-            if (r.estado() != EstadoPedido.CANCELADO) {
-                importeTotal = importeTotal.add(r.importe());
-            }
-        }
-        modelo.addRow(new Object[]{"TOTAL (importe sin cancelados)", cantidadTotal, Dinero.formato(importeTotal)});
-        tabla.setModel(modelo);
+        int cantidadTotal = contarPedidos(resumen);
+        tabla.setModel(crearModeloDeResumen(resumen, cantidadTotal));
         if (cantidadTotal == 0) {
             lblResultado.setText("No hay pedidos registrados.");
         } else {
@@ -210,12 +232,48 @@ class PanelConsultas extends JPanel implements Refrescable {
         }
     }
 
-    private void verDetalle() {
-        int fila = tabla.getSelectedRow();
-        if (fila < 0) {
-            throw new ValidacionException("Seleccione un pedido de la tabla.");
+    private int contarPedidos(List<ResumenEstado> resumen) {
+        int cantidadTotal = 0;
+        for (ResumenEstado r : resumen) {
+            cantidadTotal += r.getCantidad();
         }
-        JTextArea texto = new JTextArea(nombres.describir(pedidosMostrados.get(fila)));
+        return cantidadTotal;
+    }
+
+    private BigDecimal sumarImporteSinCancelados(List<ResumenEstado> resumen) {
+        BigDecimal importeTotal = Dinero.CERO;
+        for (ResumenEstado r : resumen) {
+            if (r.getEstado() != EstadoPedido.CANCELADO) {
+                importeTotal = importeTotal.add(r.getImporte());
+            }
+        }
+        return importeTotal;
+    }
+
+    private DefaultTableModel crearModeloDeResumen(List<ResumenEstado> resumen, int cantidadTotal) {
+        DefaultTableModel modelo = UiUtil.modelo("Estado", "Cantidad de pedidos", "Importe total");
+        for (ResumenEstado r : resumen) {
+            modelo.addRow(new Object[]{r.getEstado(), r.getCantidad(), Dinero.formato(r.getImporte())});
+        }
+        modelo.addRow(new Object[]{"TOTAL (importe sin cancelados)", cantidadTotal,
+                Dinero.formato(sumarImporteSinCancelados(resumen))});
+        return modelo;
+    }
+
+    private void verDetalle() {
+        try {
+            int fila = tabla.getSelectedRow();
+            if (fila < 0) {
+                throw new ValidacionException("Seleccione un pedido de la tabla.");
+            }
+            mostrarVentanaDeDetalle(pedidosMostrados.get(fila));
+        } catch (RuntimeException ex) {
+            UiUtil.mostrarError(this, ex);
+        }
+    }
+
+    private void mostrarVentanaDeDetalle(Pedido pedido) {
+        JTextArea texto = new JTextArea(nombres.describir(pedido));
         texto.setEditable(false);
         texto.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         JOptionPane.showMessageDialog(this, new JScrollPane(texto), "Detalle del pedido",
