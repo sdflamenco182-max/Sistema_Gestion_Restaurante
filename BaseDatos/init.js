@@ -1,12 +1,6 @@
-// Script de inicialización de la base de datos "restaurante_db".
-// Uso:  mongosh "mongodb://localhost:27017" init.js
-// Es idempotente: si ya existe un usuario, no vuelve a cargar los datos.
-//
-// Usuario de prueba: admin  (la contraseña se entrega en el README; aquí solo se almacena su hash PBKDF2).
 
 const bd = db.getSiblingDB("restaurante_db");
 
-// ---------- Colecciones e índices únicos ----------
 ["usuarios", "clientes", "mesas", "productos", "pedidos", "contadores"].forEach(n => {
   if (!bd.getCollectionNames().includes(n)) bd.createCollection(n);
 });
@@ -23,7 +17,6 @@ bd.pedidos.createIndex({ fecha: 1 });
 if (bd.usuarios.countDocuments() > 0) {
   print("La base de datos ya contiene datos; no se realizaron cambios.");
 } else {
-  // ---------- Usuario de prueba (solo hash, sin texto plano) ----------
   bd.usuarios.insertOne({
     nombreUsuario: "admin",
     nombreCompleto: "Administrador del sistema",
@@ -31,7 +24,6 @@ if (bd.usuarios.countDocuments() > 0) {
     activo: true
   });
 
-  // ---------- Clientes ----------
   bd.clientes.insertMany([
     { codigo: "C001", nombre: "Ana Martínez",     telefono: "7000-1111", correo: "ana.martinez@correo.com", activo: true },
     { codigo: "C002", nombre: "Carlos Hernández", telefono: "7000-2222", correo: "carlos.h@correo.com",      activo: true },
@@ -41,7 +33,6 @@ if (bd.usuarios.countDocuments() > 0) {
     { codigo: "C006", nombre: "Pedro Castillo",   telefono: "7000-6666", correo: "pedro.c@correo.com",       activo: true }
   ]);
 
-  // ---------- Mesas ----------
   bd.mesas.insertMany([
     { codigo: "M01", numero: 1, capacidad: 2, estado: "DISPONIBLE" },
     { codigo: "M02", numero: 2, capacidad: 4, estado: "OCUPADA" },
@@ -51,7 +42,6 @@ if (bd.usuarios.countDocuments() > 0) {
     { codigo: "M06", numero: 6, capacidad: 8, estado: "DISPONIBLE" }
   ]);
 
-  // ---------- Productos ----------
   bd.productos.insertMany([
     { codigo: "P001", nombre: "Pupusa revuelta",         categoria: "Comida",  descripcion: "Chicharrón y frijol",   precio: NumberDecimal("1.25"), disponible: true },
     { codigo: "P002", nombre: "Pupusa de queso",         categoria: "Comida",  descripcion: "Con loroco opcional",   precio: NumberDecimal("1.25"), disponible: true },
@@ -63,7 +53,6 @@ if (bd.usuarios.countDocuments() > 0) {
     { codigo: "P008", nombre: "Pastel de tres leches",   categoria: "Postres", descripcion: "Porción",               precio: NumberDecimal("3.25"), disponible: false }
   ]);
 
-  // ---------- Pedidos (detalle embebido con el precio aplicado) ----------
   const hace = ms => new Date(Date.now() - ms);
   const MIN = 60 * 1000, HORA = 60 * MIN, DIA = 24 * HORA;
   const linea = (codigoProducto, nombreProducto, precio, cantidad) =>
@@ -90,7 +79,6 @@ if (bd.usuarios.countDocuments() > 0) {
       total: NumberDecimal("3.00") }
   ]);
 
-  // El siguiente pedido que cree la aplicación será PED-0007.
   bd.contadores.updateOne({ _id: "pedidos" }, { $set: { valor: 6 } }, { upsert: true });
 
   print("Base de datos inicializada correctamente.");

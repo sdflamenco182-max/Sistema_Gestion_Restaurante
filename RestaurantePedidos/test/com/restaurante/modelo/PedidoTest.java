@@ -65,7 +65,7 @@ class PedidoTest {
     @Test
     void pedidoSinProductosNoPuedeCerrarseNiPrepararse() {
         assertThrows(ValidacionException.class, () -> pedido.cambiarEstado(EstadoPedido.EN_PREPARACION));
-        pedido.cambiarEstado(EstadoPedido.CANCELADO); // cancelar sí se permite
+        pedido.cambiarEstado(EstadoPedido.CANCELADO);
         assertEquals(EstadoPedido.CANCELADO, pedido.getEstado());
     }
 

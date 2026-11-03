@@ -3,7 +3,6 @@
     <description>Compila, prueba y ejecuta el proyecto RestaurantePedidos.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <!-- Copia las librerias a dist/lib y las enlaza en el JAR, para que "java -jar dist/RestaurantePedidos.jar" funcione -->
     <target name="-post-jar">
         <copy todir="${dist.dir}/lib">
             <fileset dir="lib"/>
@@ -20,7 +19,6 @@
         </jar>
     </target>
 
-    <!-- Ejecuta las pruebas unitarias JUnit 5: ant probar -->
     <target name="probar" depends="compile-test" description="Ejecuta las pruebas unitarias (JUnit 5)">
         <java classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
             <classpath>
