@@ -8,6 +8,7 @@ public class Producto {
     private double precioUnitario;
     private boolean disponible;
     
+    // Constructor
     public Producto(String codigo, String nombre, String categoria, String descripcion, double precioUnitario) {
         this.codigo = codigo;
         this.nombre = nombre;
@@ -17,6 +18,7 @@ public class Producto {
         this.disponible = true;
     }
     
+    // Getters y Setters
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }
     

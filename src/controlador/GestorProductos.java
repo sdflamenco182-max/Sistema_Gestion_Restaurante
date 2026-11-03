@@ -10,7 +10,8 @@ public class GestorProductos {
     public GestorProductos() {
         this.listaProductos = new ArrayList<>();
     }
-
+    
+    // Registrar producto
     public boolean registrarProducto(String codigo, String nombre, String categoria, String descripcion, double precio) {
         if (buscarPorCodigo(codigo) != null) {
             return false;
@@ -19,7 +20,8 @@ public class GestorProductos {
         listaProductos.add(nuevo);
         return true;
     }
-
+    
+    // Buscar producto por código
     public Producto buscarPorCodigo(String codigo) {
         for (Producto p : listaProductos) {
             if (p.getCodigo().equalsIgnoreCase(codigo)) {
@@ -28,7 +30,8 @@ public class GestorProductos {
         }
         return null;
     }
-
+    
+    // Buscar producto por nombre
     public List<Producto> buscarPorNombre(String nombre) {
         List<Producto> encontrados = new ArrayList<>();
         for (Producto p : listaProductos) {
@@ -38,11 +41,13 @@ public class GestorProductos {
         }
         return encontrados;
     }
-
+    
+    // Consultar productos disponibles
     public List<Producto> consultarProductos() {
         return listaProductos;
     }
-
+    
+    // Modificar producto
     public boolean modificarProducto(String codigo, String nuevoNombre, String nuevaCategoria, String nuevaDescripcion, double nuevoPrecio) {
         Producto p = buscarPorCodigo(codigo);
         if (p != null) {
@@ -54,7 +59,8 @@ public class GestorProductos {
         }
         return false;
     }
-
+    
+    // Cambiar disponibilidad
     public boolean cambiarDisponibilidad(String codigo) {
         Producto p = buscarPorCodigo(codigo);
         if (p != null) {
@@ -64,6 +70,7 @@ public class GestorProductos {
         return false;
     }
 
+    // Eliminar producto con validación de restricciones
     public boolean eliminarProducto(String codigo, boolean tieneRestriccionPedidos) {
         if (tieneRestriccionPedidos) {
             return false; 
