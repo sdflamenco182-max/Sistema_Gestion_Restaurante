@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+// Maneja la conexión a MongoDB; hay una sola para todo el programa (singleton)
 public final class MongoConexion {
 
     private static final String URI_POR_DEFECTO = "mongodb://localhost:27017";
@@ -28,6 +29,7 @@ public final class MongoConexion {
     private final MongoClient cliente;
     private final MongoDatabase baseDatos;
 
+    // Lee la configuración y abre el cliente de MongoDB (espera máximo 3 segundos al servidor)
     private MongoConexion() {
         Properties config = cargarConfiguracion();
         String uri = obtenerUri(config);
@@ -40,6 +42,7 @@ public final class MongoConexion {
         baseDatos = cliente.getDatabase(nombreBd);
     }
 
+    // Devuelve la conexión única; la crea la primera vez que se pide
     public static synchronized MongoConexion obtener() {
         if (instancia == null) {
             instancia = new MongoConexion();
@@ -47,6 +50,7 @@ public final class MongoConexion {
         return instancia;
     }
 
+    // Cierra la conexión con MongoDB al terminar el programa
     public static synchronized void cerrar() {
         if (instancia != null) {
             instancia.cliente.close();
@@ -54,10 +58,12 @@ public final class MongoConexion {
         }
     }
 
+    // Devuelve la colección con ese nombre de la base de datos
     public MongoCollection<Document> coleccion(String nombre) {
         return baseDatos.getCollection(nombre);
     }
 
+    // Hace un ping a MongoDB para comprobar que responde; si no, lanza PersistenciaException
     public void verificar() {
         try {
             baseDatos.runCommand(new Document("ping", 1));
@@ -67,6 +73,7 @@ public final class MongoConexion {
         }
     }
 
+    // Crea los índices: únicos para códigos y números, y otros para acelerar búsquedas de pedidos
     public void crearIndices() {
         try {
             IndexOptions unico = new IndexOptions().unique(true);
@@ -84,6 +91,7 @@ public final class MongoConexion {
         }
     }
 
+    // Saca la dirección de MongoDB: primero la variable MONGODB_URI, luego el archivo de config
     private static String obtenerUri(Properties config) {
         String uri = System.getenv("MONGODB_URI");
         if (uri == null || uri.isBlank()) {
@@ -92,6 +100,7 @@ public final class MongoConexion {
         return uri;
     }
 
+    // Lee mongodb.properties si existe; si no, devuelve la configuración vacía
     private static Properties cargarConfiguracion() {
         Properties propiedades = new Properties();
         Path archivo = Path.of("mongodb.properties");

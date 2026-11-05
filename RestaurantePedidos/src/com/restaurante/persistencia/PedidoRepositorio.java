@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+// Guarda y consulta pedidos (con sus detalles) en la colección "pedidos"
 public class PedidoRepositorio extends RepositorioBase<Pedido> {
 
     private static final String SECUENCIA_PEDIDOS = "pedidos";
@@ -27,6 +28,7 @@ public class PedidoRepositorio extends RepositorioBase<Pedido> {
         super(Colecciones.PEDIDOS);
     }
 
+    // Pedido a documento; los detalles van como lista dentro del mismo documento
     @Override
     protected Document aDocumento(Pedido p) {
         List<Document> detalles = new ArrayList<>();
@@ -45,6 +47,7 @@ public class PedidoRepositorio extends RepositorioBase<Pedido> {
                 .append("total", new Decimal128(p.getTotal()));
     }
 
+    // Documento a pedido, armando otra vez la lista de detalles y la fecha
     @Override
     protected Pedido deDocumento(Document d) {
         List<DetallePedido> detalles = new ArrayList<>();
@@ -58,11 +61,13 @@ public class PedidoRepositorio extends RepositorioBase<Pedido> {
                 d.get("total", Decimal128.class).bigDecimalValue());
     }
 
+    // Los pedidos salen del más reciente al más antiguo
     @Override
     protected Bson ordenPorDefecto() {
         return Sorts.descending("fecha");
     }
 
+    // Genera el siguiente código (PED-0001, PED-0002...) con un contador guardado en MongoDB
     public String siguienteCodigo() {
         try {
             FindOneAndUpdateOptions opciones = new FindOneAndUpdateOptions()
@@ -75,42 +80,51 @@ public class PedidoRepositorio extends RepositorioBase<Pedido> {
         }
     }
 
+    // Trae los pedidos que todavía están activos (no cerrados ni cancelados)
     public List<Pedido> listarActivos() {
         return consultar(Filters.in("estado", nombresEstadosActivos()));
     }
 
+    // Trae los pedidos que están en ese estado
     public List<Pedido> porEstado(EstadoPedido estado) {
         return consultar(Filters.eq("estado", estado.name()));
     }
 
+    // Trae los pedidos de una mesa
     public List<Pedido> porMesa(String codigoMesa) {
         return consultar(Filters.eq("codigoMesa", codigoMesa));
     }
 
+    // Trae los pedidos desde una fecha (incluida) hasta otra (sin incluir)
     public List<Pedido> porRangoFecha(LocalDateTime desde, LocalDateTime hasta) {
         return consultar(Filters.and(
                 Filters.gte("fecha", aDate(desde)),
                 Filters.lt("fecha", aDate(hasta))));
     }
 
+    // Dice si la mesa tiene algún pedido activo
     public boolean existenActivosDeMesa(String codigoMesa) {
         Bson filtro = Filters.and(Filters.eq("codigoMesa", codigoMesa),
                 Filters.in("estado", nombresEstadosActivos()));
         return contar(filtro) > 0;
     }
 
+    // Dice si el cliente tiene algún pedido
     public boolean existenDeCliente(String codigoCliente) {
         return contar(Filters.eq("codigoCliente", codigoCliente)) > 0;
     }
 
+    // Dice si el producto aparece en el detalle de algún pedido
     public boolean existenConProducto(String codigoProducto) {
         return contar(Filters.eq("detalles.codigoProducto", codigoProducto)) > 0;
     }
 
+    // Pasa LocalDateTime a Date, que es lo que guarda MongoDB
     private static Date aDate(LocalDateTime fecha) {
         return Date.from(fecha.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+    // Arma la lista con los nombres de los estados que cuentan como activos
     private static List<String> nombresEstadosActivos() {
         List<String> nombres = new ArrayList<>();
         for (EstadoPedido e : EstadoPedido.values()) {

@@ -16,22 +16,28 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.List;
 
+// Base de los repositorios; T es el tipo de entidad con el que trabaja (Cliente, Mesa, etc.)
 abstract class RepositorioBase<T extends EntidadBase> {
 
+    // Colección de MongoDB donde guarda esta entidad
     protected final MongoCollection<Document> coleccion;
 
     protected RepositorioBase(String nombreColeccion) {
         this.coleccion = MongoConexion.obtener().coleccion(nombreColeccion);
     }
 
+    // Cada subclase dice cómo pasar el objeto a documento de MongoDB
     protected abstract Document aDocumento(T entidad);
 
+    // Cada subclase dice cómo pasar el documento de MongoDB al objeto
     protected abstract T deDocumento(Document documento);
 
+    // Orden de las consultas; por defecto por código (las subclases lo pueden cambiar)
     protected Bson ordenPorDefecto() {
         return Sorts.ascending("codigo");
     }
 
+    // Guarda la entidad; si el código ya existe lanza ValidacionException
     public void insertar(T entidad) {
         try {
             coleccion.insertOne(aDocumento(entidad));
@@ -46,6 +52,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Busca una entidad por su código; devuelve null si no existe
     public T buscarPorCodigo(String codigo) {
         try {
             Document documento = coleccion.find(Filters.eq("codigo", codigo)).first();
@@ -58,6 +65,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Dice si ya hay un registro con ese código
     public boolean existe(String codigo) {
         try {
             return coleccion.countDocuments(Filters.eq("codigo", codigo)) > 0;
@@ -66,10 +74,12 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Trae todos los registros de la colección
     public List<T> listar() {
         return consultar(new Document());
     }
 
+    // Reemplaza el documento con el mismo código; true si lo encontró
     public boolean actualizar(T entidad) {
         try {
             Bson filtro = Filters.eq("codigo", entidad.getCodigo());
@@ -79,6 +89,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Borra el registro con ese código; true si se borró algo
     public boolean eliminar(String codigo) {
         try {
             return coleccion.deleteOne(Filters.eq("codigo", codigo)).getDeletedCount() > 0;
@@ -87,6 +98,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Busca con un filtro y devuelve los resultados ya convertidos y ordenados
     protected List<T> consultar(Bson filtro) {
         try {
             List<T> resultado = new ArrayList<>();
@@ -99,6 +111,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Cuenta cuántos documentos cumplen el filtro
     protected long contar(Bson filtro) {
         try {
             return coleccion.countDocuments(filtro);
@@ -107,6 +120,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         }
     }
 
+    // Pasa el error de Mongo a PersistenciaException con un mensaje entendible
     protected PersistenciaException crearError(MongoException e) {
         if (e instanceof MongoTimeoutException) {
             return new PersistenciaException("No hay conexión con MongoDB. Verifique que el servicio esté iniciado "
@@ -115,6 +129,7 @@ abstract class RepositorioBase<T extends EntidadBase> {
         return new PersistenciaException("Error de conexión, lectura o escritura en MongoDB: " + e.getMessage(), e);
     }
 
+    // Convierte el documento a objeto; si los datos están mal lanza PersistenciaException
     private T convertir(Document documento) {
         try {
             return deDocumento(documento);

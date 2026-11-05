@@ -7,6 +7,7 @@ import com.restaurante.excepcion.PersistenciaException;
 import com.restaurante.modelo.Usuario;
 import org.bson.Document;
 
+// Guarda y consulta usuarios del sistema; no usa RepositorioBase porque se busca por nombreUsuario
 public class UsuarioRepositorio {
 
     private static final String MENSAJE_ERROR_MONGO = "Error de conexión, lectura o escritura en MongoDB: ";
@@ -14,6 +15,7 @@ public class UsuarioRepositorio {
     private final MongoCollection<Document> coleccion =
             MongoConexion.obtener().coleccion(Colecciones.USUARIOS);
 
+    // Busca un usuario por su nombre de usuario; devuelve null si no existe
     public Usuario buscarPorNombreUsuario(String nombreUsuario) {
         MongoConexion.obtener().verificar();
         try {
@@ -30,6 +32,7 @@ public class UsuarioRepositorio {
         }
     }
 
+    // Guarda un usuario nuevo con su contraseña ya cifrada (hash)
     public void insertar(Usuario usuario) {
         try {
             coleccion.insertOne(new Document("nombreUsuario", usuario.getNombreUsuario())
@@ -41,6 +44,7 @@ public class UsuarioRepositorio {
         }
     }
 
+    // Cuenta cuántos usuarios hay registrados
     public long contar() {
         try {
             return coleccion.countDocuments();

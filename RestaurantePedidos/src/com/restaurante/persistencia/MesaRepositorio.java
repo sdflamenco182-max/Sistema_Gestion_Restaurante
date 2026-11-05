@@ -11,12 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+// Guarda y consulta mesas en la colección "mesas"
 public class MesaRepositorio extends RepositorioBase<Mesa> {
 
     public MesaRepositorio() {
         super(Colecciones.MESAS);
     }
 
+    // Mesa a documento (el estado se guarda como texto)
     @Override
     protected Document aDocumento(Mesa m) {
         return new Document("codigo", m.getCodigo())
@@ -25,17 +27,20 @@ public class MesaRepositorio extends RepositorioBase<Mesa> {
                 .append("estado", m.getEstado().name());
     }
 
+    // Documento a mesa
     @Override
     protected Mesa deDocumento(Document d) {
         return new Mesa(d.getString("codigo"), d.getInteger("numero"), d.getInteger("capacidad"),
                 EstadoMesa.valueOf(d.getString("estado")));
     }
 
+    // Las mesas se ordenan por número en vez de por código
     @Override
     protected Bson ordenPorDefecto() {
         return Sorts.ascending("numero");
     }
 
+    // Busca la mesa por su número; devuelve null si no existe
     public Mesa buscarPorNumero(int numero) {
         List<Mesa> resultado = consultar(Filters.eq("numero", numero));
         if (resultado.isEmpty()) {
@@ -44,6 +49,7 @@ public class MesaRepositorio extends RepositorioBase<Mesa> {
         return resultado.get(0);
     }
 
+    // Busca por código; si el texto es un número también busca por número de mesa
     public List<Mesa> buscar(String texto) {
         List<Bson> condiciones = new ArrayList<>();
         condiciones.add(Filters.regex("codigo", Pattern.quote(texto), "i"));
@@ -53,6 +59,7 @@ public class MesaRepositorio extends RepositorioBase<Mesa> {
         return consultar(Filters.or(condiciones));
     }
 
+    // Revisa si el texto se puede convertir a número entero
     private boolean esNumero(String texto) {
         try {
             Integer.parseInt(texto.trim());

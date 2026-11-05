@@ -1,5 +1,6 @@
 package com.restaurante.persistencia;
 
+// Nombres de las colecciones de MongoDB, para no escribirlos a mano en cada lado
 public final class Colecciones {
 
     public static final String USUARIOS = "usuarios";
