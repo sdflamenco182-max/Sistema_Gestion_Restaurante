@@ -55,6 +55,7 @@ public class MainFrame extends JFrame {
 
     // Agrega una pestaña por cada panel
     private void crearPestanas() {
+        pestanas.addTab("Pedidos", new PanelPedidos());
         pestanas.addTab("Clientes", new PanelClientes());
         pestanas.addTab("Mesas", new PanelMesas());
         pestanas.addTab("Productos", new PanelProductos());
