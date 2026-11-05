@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+// Genera y verifica hashes de contraseñas con PBKDF2 y una sal aleatoria
 public final class PasswordHasher {
     private static final String PREFIJO = "pbkdf2_sha256";
     private static final int ITERACIONES = 120_000;
@@ -17,6 +18,7 @@ public final class PasswordHasher {
     private PasswordHasher() {
     }
 
+    // Convierte la clave en un hash para no guardarla en texto
     public static String hash(char[] clave) {
         byte[] sal = new byte[BYTES_SAL];
         ALEATORIO.nextBytes(sal);
@@ -26,6 +28,7 @@ public final class PasswordHasher {
         return PREFIJO + "$" + ITERACIONES + "$" + salTexto + "$" + hashTexto;
     }
 
+    // Revisa si la clave coincide con el hash guardado; si el formato es raro devuelve false
     public static boolean verificar(char[] clave, String almacenado) {
         if (almacenado == null) {
             return false;
@@ -45,6 +48,7 @@ public final class PasswordHasher {
         }
     }
 
+    // Calcula el hash PBKDF2 de la clave con la sal y las iteraciones dadas
     private static byte[] derivar(char[] clave, byte[] sal, int iteraciones, int bits) {
         PBEKeySpec especificacion = new PBEKeySpec(clave, sal, iteraciones, bits);
         try {

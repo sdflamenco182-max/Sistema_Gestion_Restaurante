@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Pattern;
 
+// Validaciones de los datos que escribe el usuario en los formularios
 public final class Validador {
     private static final Pattern CODIGO = Pattern.compile("^[A-Za-z0-9_-]{1,20}$");
     private static final Pattern CORREO = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
@@ -15,6 +16,7 @@ public final class Validador {
     private Validador() {
     }
 
+    // El campo no puede ir vacío; devuelve el texto sin espacios de los lados
     public static String requerido(String campo, String valor) {
         if (valor == null || valor.isBlank()) {
             throw new ValidacionException("El campo \"" + campo + "\" es obligatorio.");
@@ -22,6 +24,7 @@ public final class Validador {
         return valor.trim();
     }
 
+    // El código solo admite letras, números, guion y guion bajo (máximo 20)
     public static String codigo(String campo, String valor) {
         String limpio = requerido(campo, valor);
         if (!CODIGO.matcher(limpio).matches()) {
@@ -31,6 +34,7 @@ public final class Validador {
         return limpio;
     }
 
+    // Convierte el texto a entero y exige que sea mayor que cero
     public static int enteroPositivo(String campo, String valor) {
         String limpio = requerido(campo, valor);
         int numero;
@@ -45,6 +49,7 @@ public final class Validador {
         return numero;
     }
 
+    // Convierte el texto a monto: no negativo, máximo dos decimales y un tope de tamaño
     public static BigDecimal montoNoNegativo(String campo, String valor) {
         String limpio = requerido(campo, valor);
         BigDecimal monto = convertirAMonto(campo, limpio);
@@ -60,6 +65,7 @@ public final class Validador {
         return Dinero.redondear(monto);
     }
 
+    // Pasa el texto a BigDecimal; error si no es un número
     private static BigDecimal convertirAMonto(String campo, String texto) {
         try {
             return new BigDecimal(texto);
@@ -68,6 +74,7 @@ public final class Validador {
         }
     }
 
+    // El correo puede ir vacío, pero si se escribe debe tener formato válido
     public static String correoOpcional(String valor) {
         if (valor == null || valor.isBlank()) {
             return "";
@@ -79,6 +86,7 @@ public final class Validador {
         return limpio;
     }
 
+    // El teléfono puede ir vacío, pero si se escribe debe tener de 7 a 20 caracteres válidos
     public static String telefonoOpcional(String valor) {
         if (valor == null || valor.isBlank()) {
             return "";
@@ -90,6 +98,7 @@ public final class Validador {
         return limpio;
     }
 
+    // Convierte el texto a fecha con formato AAAA-MM-DD
     public static LocalDate fecha(String campo, String valor) {
         String limpio = requerido(campo, valor);
         try {
