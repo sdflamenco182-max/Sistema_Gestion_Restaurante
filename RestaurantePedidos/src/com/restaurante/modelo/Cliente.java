@@ -1,5 +1,6 @@
 package com.restaurante.modelo;
 
+// Cliente del restaurante con sus datos de contacto
 public class Cliente extends EntidadBase {
     private String nombre;
     private String telefono;
@@ -14,6 +15,7 @@ public class Cliente extends EntidadBase {
         this.activo = activo;
     }
 
+    // Getters y setters de los datos del cliente
     public String getNombre() {
         return nombre;
     }

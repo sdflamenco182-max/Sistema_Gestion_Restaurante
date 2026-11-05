@@ -1,5 +1,6 @@
 package com.restaurante.modelo;
 
+// Usuario que entra al sistema; guarda el hash de la clave, no la clave
 public class Usuario {
     private final String nombreUsuario;
     private final String nombreCompleto;
@@ -13,6 +14,7 @@ public class Usuario {
         this.activo = activo;
     }
 
+    // Getters de los datos del usuario
     public String getNombreUsuario() {
         return nombreUsuario;
     }

@@ -1,5 +1,6 @@
 package com.restaurante.modelo;
 
+// Mesa del restaurante con su número, capacidad y estado
 public class Mesa extends EntidadBase {
     private int numero;
     private int capacidad;
@@ -12,6 +13,7 @@ public class Mesa extends EntidadBase {
         this.estado = estado;
     }
 
+    // Getters y setters de los datos de la mesa
     public int getNumero() {
         return numero;
     }
@@ -36,6 +38,7 @@ public class Mesa extends EntidadBase {
         this.estado = estado;
     }
 
+    // Dice si la mesa está libre
     public boolean estaDisponible() {
         return estado == EstadoMesa.DISPONIBLE;
     }

@@ -1,5 +1,6 @@
 package com.restaurante.modelo;
 
+// Estados en que puede estar una mesa
 public enum EstadoMesa {
     DISPONIBLE("Disponible"),
     OCUPADA("Ocupada");

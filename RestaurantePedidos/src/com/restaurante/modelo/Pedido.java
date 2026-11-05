@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Pedido de un cliente en una mesa, con sus productos, su estado y su total
 public class Pedido extends EntidadBase {
     private final LocalDateTime fecha;
     private final String codigoCliente;
@@ -25,6 +26,7 @@ public class Pedido extends EntidadBase {
         this.estado = EstadoPedido.ABIERTO;
     }
 
+    // Rearma un pedido guardado, con su estado y total tal como estaban
     public static Pedido restaurar(String codigo, LocalDateTime fecha, String codigoCliente, String codigoMesa,
                                    EstadoPedido estado, List<DetallePedido> detalles, BigDecimal totalAlmacenado) {
         Pedido pedido = new Pedido(codigo, fecha, codigoCliente, codigoMesa);
@@ -34,6 +36,7 @@ public class Pedido extends EntidadBase {
         return pedido;
     }
 
+    // Getters de los datos del pedido (la lista de detalles no se puede modificar desde fuera)
     public LocalDateTime getFecha() {
         return fecha;
     }
@@ -58,6 +61,7 @@ public class Pedido extends EntidadBase {
         return Collections.unmodifiableList(detalles);
     }
 
+    // Agrega un producto; si ya estaba en el pedido, le suma la cantidad
     public void agregarProducto(Producto producto, int cantidad) {
         exigirModificable();
         exigirProductoDisponible(producto);
@@ -71,6 +75,7 @@ public class Pedido extends EntidadBase {
         recalcularTotal();
     }
 
+    // Cambia la cantidad de un producto del pedido y recalcula el total
     public void modificarCantidad(String codigoProducto, int nuevaCantidad) {
         exigirModificable();
         exigirCantidadValida(nuevaCantidad);
@@ -79,6 +84,7 @@ public class Pedido extends EntidadBase {
         recalcularTotal();
     }
 
+    // Quita un producto del pedido y recalcula el total
     public void quitarProducto(String codigoProducto) {
         exigirModificable();
         DetallePedido detalle = buscarDetalleObligatorio(codigoProducto);
@@ -86,12 +92,14 @@ public class Pedido extends EntidadBase {
         recalcularTotal();
     }
 
+    // Cambia el estado si la transición es válida y el pedido tiene productos
     public void cambiarEstado(EstadoPedido destino) {
         exigirTransicionPermitida(destino);
         exigirProductosParaAvanzar(destino);
         estado = destino;
     }
 
+    // Suma los subtotales de todos los productos del pedido
     public BigDecimal calcularTotal() {
         BigDecimal suma = Dinero.CERO;
         for (DetallePedido detalle : detalles) {
@@ -100,14 +108,17 @@ public class Pedido extends EntidadBase {
         return Dinero.redondear(suma);
     }
 
+    // Actualiza el total guardado con la suma actual
     public void recalcularTotal() {
         total = calcularTotal();
     }
 
+    // Revisa que el total guardado coincida con la suma de los detalles
     public boolean totalConsistente() {
         return calcularTotal().compareTo(total) == 0;
     }
 
+    // Lanza error si el pedido no puede pasar a ese estado
     private void exigirTransicionPermitida(EstadoPedido destino) {
         if (destino == null || !estado.puedePasarA(destino)) {
             String textoDestino = "(sin estado)";
@@ -119,6 +130,7 @@ public class Pedido extends EntidadBase {
         }
     }
 
+    // Un pedido sin productos no puede pasar a preparación ni completarse
     private void exigirProductosParaAvanzar(EstadoPedido destino) {
         boolean avanza = destino == EstadoPedido.EN_PREPARACION || destino == EstadoPedido.COMPLETADO;
         if (avanza && detalles.isEmpty()) {
@@ -127,6 +139,7 @@ public class Pedido extends EntidadBase {
         }
     }
 
+    // Busca la línea de un producto; devuelve null si no está
     private DetallePedido buscarDetalle(String codigoProducto) {
         for (DetallePedido detalle : detalles) {
             if (detalle.getCodigoProducto().equals(codigoProducto)) {
@@ -136,6 +149,7 @@ public class Pedido extends EntidadBase {
         return null;
     }
 
+    // Igual que la anterior, pero lanza error si el producto no está en el pedido
     private DetallePedido buscarDetalleObligatorio(String codigoProducto) {
         DetallePedido detalle = buscarDetalle(codigoProducto);
         if (detalle == null) {
@@ -144,6 +158,7 @@ public class Pedido extends EntidadBase {
         return detalle;
     }
 
+    // Lanza error si el producto no existe o no está disponible
     private void exigirProductoDisponible(Producto producto) {
         if (producto == null) {
             throw new ValidacionException("El producto seleccionado no existe.");
@@ -153,6 +168,7 @@ public class Pedido extends EntidadBase {
         }
     }
 
+    // Un pedido cerrado ya no se puede modificar
     private void exigirModificable() {
         if (!estado.permiteModificarDetalle()) {
             throw new ValidacionException("El pedido está \"" + estado
@@ -160,6 +176,7 @@ public class Pedido extends EntidadBase {
         }
     }
 
+    // Lanza error si la cantidad es cero o negativa
     private static void exigirCantidadValida(int cantidad) {
         if (cantidad <= 0) {
             throw new ValidacionException("La cantidad debe ser un entero mayor que cero.");

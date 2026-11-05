@@ -4,6 +4,7 @@ import com.restaurante.util.Dinero;
 
 import java.math.BigDecimal;
 
+// Producto del menú con su categoría, precio y si está disponible
 public class Producto extends EntidadBase {
     private String nombre;
     private String categoria;
@@ -21,6 +22,7 @@ public class Producto extends EntidadBase {
         this.disponible = disponible;
     }
 
+    // Getters y setters de los datos del producto
     public String getNombre() {
         return nombre;
     }
