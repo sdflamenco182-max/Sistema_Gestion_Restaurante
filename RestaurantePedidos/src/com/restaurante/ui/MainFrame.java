@@ -16,40 +16,49 @@ import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+// Ventana principal con una pestaña por cada módulo del sistema
 public class MainFrame extends JFrame {
 
+    // Servicio de sesión y las pestañas
     private final AuthServicio autenticacion = new AuthServicio();
     private final JTabbedPane pestanas = new JTabbedPane();
 
+    // Arma la ventana principal (exige haber iniciado sesión)
     public MainFrame() {
         super("Restaurante - Sistema de pedidos");
         Sesion.exigirAutenticado();
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
+        // pestañas, menú y distribución
         crearPestanas();
         setJMenuBar(crearMenu());
         armarDistribucion();
+        // eventos, tamaño y carga de la primera pestaña
         conectarEventos();
         configurarTamanoYPosicion();
         refrescar(pestanas.getSelectedComponent());
     }
 
+    // Pone las pestañas al centro y la barra de estado abajo
     private void armarDistribucion() {
         setLayout(new BorderLayout());
         add(pestanas, BorderLayout.CENTER);
         add(crearBarraEstado(), BorderLayout.SOUTH);
     }
 
+    // Define el tamaño de la ventana y la centra en pantalla
     private void configurarTamanoYPosicion() {
         setMinimumSize(new Dimension(980, 640));
         setSize(1100, 700);
         setLocationRelativeTo(null);
     }
 
+    // Agrega una pestaña por cada panel
     private void crearPestanas() {
         pestanas.addTab("Consultas y reportes", new PanelConsultas());
     }
 
+    // Arma el menú Sesión con las opciones Cerrar sesión y Salir
     private JMenuBar crearMenu() {
         JMenuItem cerrar = new JMenuItem("Cerrar sesión");
         JMenuItem salir = new JMenuItem("Salir");
@@ -65,6 +74,7 @@ public class MainFrame extends JFrame {
         return barra;
     }
 
+    // Crea la barra de abajo que muestra el usuario conectado
     private JLabel crearBarraEstado() {
         JLabel estado = new JLabel("Usuario: " + Sesion.usuario().getNombreCompleto()
                 + " (" + Sesion.usuario().getNombreUsuario() + ")");
@@ -72,6 +82,7 @@ public class MainFrame extends JFrame {
         return estado;
     }
 
+    // Recarga el panel al cambiar de pestaña y pide confirmar al cerrar la ventana
     private void conectarEventos() {
         pestanas.addChangeListener(e -> refrescar(pestanas.getSelectedComponent()));
         addWindowListener(new WindowAdapter() {
@@ -82,6 +93,7 @@ public class MainFrame extends JFrame {
         });
     }
 
+    // Si el panel es Refrescable, le pide que recargue sus datos
     private void refrescar(Component panel) {
         if (panel instanceof Refrescable) {
             try {
@@ -92,6 +104,7 @@ public class MainFrame extends JFrame {
         }
     }
 
+    // Menú Cerrar sesión: confirma, cierra la sesión y vuelve al login
     private void cerrarSesion() {
         if (UiUtil.confirmar(this, "¿Desea cerrar la sesión?")) {
             autenticacion.cerrarSesion();
@@ -100,6 +113,7 @@ public class MainFrame extends JFrame {
         }
     }
 
+    // Menú Salir: confirma, cierra la sesión y termina el programa
     private void salir() {
         if (UiUtil.confirmar(this, "¿Desea salir de la aplicación?")) {
             autenticacion.cerrarSesion();
