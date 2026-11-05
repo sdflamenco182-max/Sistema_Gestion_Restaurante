@@ -4,7 +4,9 @@ Este es el proyecto final de Programación Orientada a Objetos (Universidad de E
 
 La aplicación sirve para llevar el control de lo que pasa en un restaurante pequeño: quién hizo un pedido, en qué mesa está, qué pidió y cuánto debe pagar. Está hecha en Java con Swing para las ventanas y guarda todo en MongoDB.
 
-Integrantes: [nombres y usuarios de GitHub]
+Integrantes: Walter Alexander Lopez Corea       
+Javier Ramirez   
+Sergio Flamenco
 
 ## Qué necesita para usarla
 
@@ -44,8 +46,6 @@ Sin entrar no se puede ver ninguna otra pantalla. Dentro hay una pestaña para c
 - **Consultas y reportes.** Sirve para buscar un pedido por su código, ver los de una mesa, los de un estado o los de un rango de fechas. También muestra el listado de productos y un resumen con cuántos pedidos hay en cada estado y cuánto suman.
 
 Para salir, el menú `Sesión` tiene la opción de cerrar sesión.
-
-[Si en su rama todavía solo está la pestaña de Consultas, deje este aviso y borre el cuando estén todas: "Por ahora esta versión solo trae Consultas y reportes. Las demás pestañas las vamos agregando entre todos."]
 
 ## Reglas que tiene el sistema
 
