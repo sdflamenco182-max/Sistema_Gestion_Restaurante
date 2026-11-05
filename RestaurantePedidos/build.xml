@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="RestaurantePedidos" default="default" basedir=".">
-    <description>Compila, prueba y ejecuta el proyecto RestaurantePedidos.</description>
+    <description>Compila y ejecuta el proyecto RestaurantePedidos.</description>
     <import file="nbproject/build-impl.xml"/>
 
     <target name="-post-jar">
@@ -17,18 +17,5 @@
                 <attribute name="Class-Path" value="${jar.classpath.lib}"/>
             </manifest>
         </jar>
-    </target>
-
-    <target name="probar" depends="compile-test" description="Ejecuta las pruebas unitarias (JUnit 5)">
-        <java classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
-            <classpath>
-                <pathelement path="${run.test.classpath}"/>
-            </classpath>
-            <arg value="execute"/>
-            <arg value="--scan-classpath"/>
-            <arg value="${build.test.classes.dir}"/>
-            <arg value="--details=summary"/>
-            <arg value="--disable-banner"/>
-        </java>
     </target>
 </project>
