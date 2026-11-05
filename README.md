@@ -1,6 +1,6 @@
 # Sistema de pedidos de un restaurante
 
-Este es el proyecto final de Programación Orientada a Objetos (Universidad de El Salvador en Línea, grupo de tutoría 3, grupo de proyecto 7). Elegimos la clave 7, el sistema de pedidos de un restaurante.
+Este es el proyecto final de Programación Orientada a Objetos (Universidad de El Salvador en Línea, grupo de tutoría 3, grupo de proyecto 7). Nos toco la clave 7, con el tema "sistema de pedidos de un restaurante".
 
 La aplicación sirve para llevar el control de lo que pasa en un restaurante pequeño: quién hizo un pedido, en qué mesa está, qué pidió y cuánto debe pagar. Está hecha en Java con Swing para las ventanas y guarda todo en MongoDB.
 
