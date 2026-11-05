@@ -10,11 +10,13 @@ import com.restaurante.util.Validador;
 import java.util.ArrayList;
 import java.util.List;
 
+// Reglas de negocio de las mesas: registrar, modificar, cambiar estado, eliminar y consultar
 public class MesaServicio {
 
     private final MesaRepositorio mesas = new MesaRepositorio();
     private final PedidoRepositorio pedidos = new PedidoRepositorio();
 
+    // Guarda una mesa nueva; no deja repetir el código ni el número de mesa
     public Mesa registrar(String codigo, String numero, String capacidad, EstadoMesa estado) {
         Sesion.exigirAutenticado();
         String cod = Validador.codigo("Código", codigo);
@@ -34,6 +36,7 @@ public class MesaServicio {
         return mesa;
     }
 
+    // Cambia número y capacidad de la mesa; el número no puede ser el de otra mesa
     public void modificar(String codigo, String numero, String capacidad) {
         Sesion.exigirAutenticado();
         Mesa mesa = obtener(codigo);
@@ -48,6 +51,7 @@ public class MesaServicio {
         mesas.actualizar(mesa);
     }
 
+    // Cambia el estado de la mesa; no la deja disponible si tiene un pedido activo
     public void cambiarEstado(String codigo, EstadoMesa estado) {
         Sesion.exigirAutenticado();
         Mesa mesa = obtener(codigo);
@@ -61,6 +65,7 @@ public class MesaServicio {
         mesas.actualizar(mesa);
     }
 
+    // No deja eliminar la mesa si tiene pedidos activos
     public void eliminar(String codigo) {
         Sesion.exigirAutenticado();
         Mesa mesa = obtener(codigo);
@@ -70,6 +75,7 @@ public class MesaServicio {
         mesas.eliminar(mesa.getCodigo());
     }
 
+    // Busca una mesa por código; si no existe lanza ValidacionException
     public Mesa obtener(String codigo) {
         Mesa mesa = null;
         if (codigo != null) {
@@ -81,11 +87,13 @@ public class MesaServicio {
         return mesa;
     }
 
+    // Devuelve todas las mesas
     public List<Mesa> listar() {
         Sesion.exigirAutenticado();
         return mesas.listar();
     }
 
+    // Busca por código o número; si el texto viene vacío devuelve todas
     public List<Mesa> buscar(String texto) {
         Sesion.exigirAutenticado();
         if (texto == null || texto.isBlank()) {
@@ -94,6 +102,7 @@ public class MesaServicio {
         return mesas.buscar(texto.trim());
     }
 
+    // Devuelve solo las mesas disponibles
     public List<Mesa> listarDisponibles() {
         List<Mesa> disponibles = new ArrayList<>();
         for (Mesa mesa : listar()) {

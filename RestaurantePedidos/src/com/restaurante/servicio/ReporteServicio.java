@@ -9,8 +9,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+// Arma los reportes de pedidos
 public class ReporteServicio {
 
+    // Guarda cuántos pedidos hay en un estado y cuánto suman
     public static class ResumenEstado {
 
         private final EstadoPedido estado;
@@ -38,6 +40,7 @@ public class ReporteServicio {
 
     private final PedidoRepositorio pedidos = new PedidoRepositorio();
 
+    // Devuelve un resumen (cantidad e importe) por cada estado de pedido
     public List<ResumenEstado> resumenPorEstado() {
         Sesion.exigirAutenticado();
         List<Pedido> todos = pedidos.listar();
@@ -48,6 +51,7 @@ public class ReporteServicio {
         return resumen;
     }
 
+    // Cuenta los pedidos de un estado y suma sus totales
     private ResumenEstado resumirEstado(EstadoPedido estado, List<Pedido> todos) {
         int cantidad = 0;
         BigDecimal importe = Dinero.CERO;

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// Reglas de negocio de los pedidos: crearlos, editar su detalle, cambiar estado y consultarlos
 public class PedidoServicio {
 
     private final PedidoRepositorio pedidos = new PedidoRepositorio();
@@ -24,6 +25,7 @@ public class PedidoServicio {
     private final MesaRepositorio mesas = new MesaRepositorio();
     private final ProductoRepositorio productos = new ProductoRepositorio();
 
+    // Crea un pedido nuevo y ocupa la mesa si se eligió una
     public Pedido crear(String codigoCliente, String codigoMesa) {
         Sesion.exigirAutenticado();
         String cliente = vacioANulo(codigoCliente);
@@ -40,6 +42,7 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Busca un pedido por código; si no existe lanza ValidacionException
     public Pedido obtener(String codigo) {
         Sesion.exigirAutenticado();
         Pedido pedido = null;
@@ -52,6 +55,7 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Agrega un producto con su cantidad al pedido y guarda el cambio
     public Pedido agregarProducto(String codigoPedido, String codigoProducto, String cantidad) {
         Sesion.exigirAutenticado();
         int cant = Validador.enteroPositivo("Cantidad", cantidad);
@@ -68,6 +72,7 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Cambia la cantidad de un producto que ya está en el pedido
     public Pedido modificarCantidad(String codigoPedido, String codigoProducto, String cantidad) {
         Sesion.exigirAutenticado();
         int cant = Validador.enteroPositivo("Cantidad", cantidad);
@@ -77,6 +82,7 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Quita un producto del pedido
     public Pedido quitarProducto(String codigoPedido, String codigoProducto) {
         Sesion.exigirAutenticado();
         Pedido pedido = obtener(codigoPedido);
@@ -85,6 +91,7 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Cambia el estado del pedido y libera la mesa si el pedido ya terminó
     public Pedido cambiarEstado(String codigoPedido, EstadoPedido nuevoEstado) {
         Sesion.exigirAutenticado();
         Pedido pedido = obtener(codigoPedido);
@@ -96,16 +103,19 @@ public class PedidoServicio {
         return pedido;
     }
 
+    // Devuelve los pedidos que siguen activos
     public List<Pedido> listarActivos() {
         Sesion.exigirAutenticado();
         return pedidos.listarActivos();
     }
 
+    // Devuelve todos los pedidos
     public List<Pedido> listarTodos() {
         Sesion.exigirAutenticado();
         return pedidos.listar();
     }
 
+    // Devuelve los pedidos de un estado; exige elegir uno
     public List<Pedido> consultarPorEstado(EstadoPedido estado) {
         Sesion.exigirAutenticado();
         if (estado == null) {
@@ -114,6 +124,7 @@ public class PedidoServicio {
         return pedidos.porEstado(estado);
     }
 
+    // Devuelve los pedidos de una mesa; exige elegir una
     public List<Pedido> consultarPorMesa(String codigoMesa) {
         Sesion.exigirAutenticado();
         if (codigoMesa == null || codigoMesa.isBlank()) {
@@ -122,6 +133,7 @@ public class PedidoServicio {
         return pedidos.porMesa(codigoMesa.trim());
     }
 
+    // Devuelve los pedidos entre dos fechas (la final incluida); "hasta" no puede ser menor
     public List<Pedido> consultarPorFecha(String desde, String hasta) {
         Sesion.exigirAutenticado();
         LocalDate inicio = Validador.fecha("Fecha desde", desde);
@@ -132,6 +144,7 @@ public class PedidoServicio {
         return pedidos.porRangoFecha(inicio.atStartOfDay(), fin.plusDays(1).atStartOfDay());
     }
 
+    // Si hay cliente, revisa que exista y esté activo
     private void validarClienteActivo(String codigoCliente) {
         if (codigoCliente == null) {
             return;
@@ -145,6 +158,7 @@ public class PedidoServicio {
         }
     }
 
+    // Si hay mesa, revisa que exista y esté disponible; si no hay devuelve null
     private Mesa buscarMesaDisponible(String codigoMesa) {
         if (codigoMesa == null) {
             return null;
@@ -159,6 +173,7 @@ public class PedidoServicio {
         return mesa;
     }
 
+    // Pone la mesa como ocupada; si falla borra el pedido para no dejarlo a medias
     private void ocuparMesaOEliminarPedido(Mesa mesa, Pedido pedido) {
         try {
             mesa.setEstado(EstadoMesa.OCUPADA);
@@ -169,6 +184,7 @@ public class PedidoServicio {
         }
     }
 
+    // Deja la mesa como disponible otra vez
     private void liberarMesa(String codigoMesa) {
         Mesa mesa = mesas.buscarPorCodigo(codigoMesa);
         if (mesa != null) {
@@ -177,12 +193,14 @@ public class PedidoServicio {
         }
     }
 
+    // Guarda los cambios del pedido; si ya no existe lanza ValidacionException
     private void guardar(Pedido pedido) {
         if (!pedidos.actualizar(pedido)) {
             throw new ValidacionException("El pedido " + pedido.getCodigo() + " ya no existe.");
         }
     }
 
+    // Si el texto viene vacío devuelve null, si no lo devuelve sin espacios
     private static String vacioANulo(String valor) {
         if (valor == null || valor.isBlank()) {
             return null;

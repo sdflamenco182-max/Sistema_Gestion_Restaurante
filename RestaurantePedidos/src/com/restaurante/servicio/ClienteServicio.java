@@ -9,11 +9,13 @@ import com.restaurante.util.Validador;
 import java.util.ArrayList;
 import java.util.List;
 
+// Reglas de negocio de los clientes: registrar, modificar, eliminar y consultar
 public class ClienteServicio {
 
     private final ClienteRepositorio clientes = new ClienteRepositorio();
     private final PedidoRepositorio pedidos = new PedidoRepositorio();
 
+    // Valida los datos y guarda un cliente nuevo; no deja repetir el código
     public Cliente registrar(String codigo, String nombre, String telefono, String correo) {
         Sesion.exigirAutenticado();
         String cod = Validador.codigo("Código", codigo);
@@ -28,6 +30,7 @@ public class ClienteServicio {
         return cliente;
     }
 
+    // Cambia los datos de un cliente existente después de validarlos
     public void modificar(String codigo, String nombre, String telefono, String correo, boolean activo) {
         Sesion.exigirAutenticado();
         Cliente cliente = obtener(codigo);
@@ -40,6 +43,7 @@ public class ClienteServicio {
         }
     }
 
+    // Si el cliente tiene pedidos lo deja inactivo; si no, lo borra
     public ResultadoEliminacion eliminar(String codigo) {
         Sesion.exigirAutenticado();
         Cliente cliente = obtener(codigo);
@@ -52,6 +56,7 @@ public class ClienteServicio {
         return ResultadoEliminacion.ELIMINADO;
     }
 
+    // Busca un cliente por código; si no existe lanza ValidacionException
     public Cliente obtener(String codigo) {
         Cliente cliente = null;
         if (codigo != null) {
@@ -63,11 +68,13 @@ public class ClienteServicio {
         return cliente;
     }
 
+    // Devuelve todos los clientes
     public List<Cliente> listar() {
         Sesion.exigirAutenticado();
         return clientes.listar();
     }
 
+    // Busca por código o nombre; si el texto viene vacío devuelve todos
     public List<Cliente> buscar(String texto) {
         Sesion.exigirAutenticado();
         if (texto == null || texto.isBlank()) {
@@ -76,6 +83,7 @@ public class ClienteServicio {
         return clientes.buscar(texto.trim());
     }
 
+    // Devuelve solo los clientes activos
     public List<Cliente> listarActivos() {
         List<Cliente> activos = new ArrayList<>();
         for (Cliente cliente : listar()) {
