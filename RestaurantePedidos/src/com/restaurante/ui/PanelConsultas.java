@@ -101,8 +101,8 @@ class PanelConsultas extends JPanel implements Refrescable {
         criterios.add(fila(new JLabel("Mesa:"), cmbMesa), POR_MESA);
         criterios.add(fila(new JLabel("Estado:"), cmbEstado), POR_ESTADO);
         criterios.add(fila(new JLabel("Desde (AAAA-MM-DD):"), txtDesde, new JLabel("Hasta:"), txtHasta), POR_FECHA);
-        criterios.add(fila(new JLabel("No requiere criterios.")), PRODUCTOS);
-        criterios.add(fila(new JLabel("No requiere criterios.")), RESUMEN);
+        criterios.add(fila(), PRODUCTOS);
+        criterios.add(fila(), RESUMEN);
     }
 
     // Arma la parte de arriba: tipo, criterios y botones
