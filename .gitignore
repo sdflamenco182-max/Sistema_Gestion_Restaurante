@@ -1,0 +1,13 @@
+# Archivos generados por la compilacion
+build/
+dist/
+*.class
+
+# Configuracion local de NetBeans y credenciales
+nbproject/private/
+mongodb.properties
+
+# Otros
+*.log
+.idea/
+*.iml
